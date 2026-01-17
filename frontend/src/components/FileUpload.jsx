@@ -1,13 +1,21 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
 const API_BASE_URL = 'http://141.148.51.40:8000';
 const POLL_INTERVAL_MS = 2000;
 
+const MODELS = [
+  { value: 'base', label: 'Fast (base)' },
+  { value: 'small', label: 'Balanced (small)' },
+  { value: 'large-v3', label: 'Accurate (large-v3)' },
+];
+
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function FileUpload({ onUploadStart, onProcessing, onComplete, onError }) {
+  const [model, setModel] = useState('large-v3');
+
   const onDrop = useCallback(async (acceptedFiles) => {
     const file = acceptedFiles[0];
     if (!file) return;
@@ -17,6 +25,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
     const formData = new FormData();
     formData.append('file', file);
     formData.append('summarize', 'false');
+    formData.append('model', model);
     
     try {
       const startResponse = await axios.post(`${API_BASE_URL}/api/transcriptions`, formData, {
@@ -50,7 +59,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
     } catch (err) {
       onError(err.response?.data?.detail || err.message || 'Processing failed');
     }
-  }, [onUploadStart, onProcessing, onComplete, onError]);
+  }, [onUploadStart, onProcessing, onComplete, onError, model]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -61,20 +70,34 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
   });
 
   return (
-    <div 
-      {...getRootProps()} 
-      className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors
-        ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
-    >
-      <input {...getInputProps()} />
-      <p className="text-lg text-gray-600">
-        {isDragActive 
-          ? 'Drop your audio file here...' 
-          : 'Drag & drop an audio file, or click to select'}
-      </p>
-      <p className="text-sm text-gray-400 mt-2">
-        Supports MP3, WAV, M4A, WebM (max 25MB)
-      </p>
+    <div className="space-y-4">
+      <div className="flex items-center justify-center gap-2">
+        <label className="text-sm text-gray-600">Model:</label>
+        <select
+          value={model}
+          onChange={(e) => setModel(e.target.value)}
+          className="border rounded px-3 py-1 text-sm"
+        >
+          {MODELS.map((m) => (
+            <option key={m.value} value={m.value}>{m.label}</option>
+          ))}
+        </select>
+      </div>
+      <div 
+        {...getRootProps()} 
+        className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-colors
+          ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-gray-400'}`}
+      >
+        <input {...getInputProps()} />
+        <p className="text-lg text-gray-600">
+          {isDragActive 
+            ? 'Drop your audio file here...' 
+            : 'Drag & drop an audio file, or click to select'}
+        </p>
+        <p className="text-sm text-gray-400 mt-2">
+          Supports MP3, WAV, M4A, WebM (max 25MB)
+        </p>
+      </div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ from fastapi.responses import FileResponse
 import tempfile
 import os
 
-from app.services.transcription import transcribe_audio
+from app.services.transcription import transcribe_audio, AVAILABLE_MODELS, ModelName
 from app.services.summarization import summarize_meeting
 from app.services.export import create_word_document
 from app.models.schemas import ProcessingResponse, MeetingSummary, TranscriptionJobCreated
@@ -59,9 +59,9 @@ async def _update_transcription_job(
         }
 
 
-async def _run_transcription_job(job_id: str, tmp_path: str) -> None:
+async def _run_transcription_job(job_id: str, tmp_path: str, model_name: ModelName = "large-v3") -> None:
     try:
-        transcript = await transcribe_audio(tmp_path)
+        transcript = await transcribe_audio(tmp_path, model_name=model_name)
         summary = MeetingSummary(
             title="Transcription",
             date=None,
@@ -95,13 +95,22 @@ async def health_check():
 
 
 @app.post("/api/process", response_model=ProcessingResponse)
-async def process_meeting(file: UploadFile, summarize: bool = Form(False)):
+async def process_meeting(
+    file: UploadFile,
+    summarize: bool = Form(False),
+    model: str = Form("large-v3"),
+):
     """Process audio file: transcribe and optionally summarize."""
+    if model not in AVAILABLE_MODELS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid model. Available: {', '.join(AVAILABLE_MODELS)}",
+        )
     tmp_path = await _save_upload_file(file)
     
     try:
         # Step 1: Transcribe
-        transcript = await transcribe_audio(tmp_path)
+        transcript = await transcribe_audio(tmp_path, model_name=model)
         
         if summarize:
             # Step 2: Summarize with Claude
@@ -132,13 +141,28 @@ async def process_meeting(file: UploadFile, summarize: bool = Form(False)):
             os.unlink(tmp_path)
 
 
+@app.get("/api/models")
+async def list_models():
+    """List available transcription models."""
+    return {"models": list(AVAILABLE_MODELS)}
+
+
 @app.post("/api/transcriptions", response_model=TranscriptionJobCreated)
-async def start_transcription(file: UploadFile, background_tasks: BackgroundTasks):
+async def start_transcription(
+    file: UploadFile,
+    background_tasks: BackgroundTasks,
+    model: str = Form("large-v3"),
+):
     """Start transcription job and return a job id."""
+    if model not in AVAILABLE_MODELS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid model. Available: {', '.join(AVAILABLE_MODELS)}",
+        )
     tmp_path = await _save_upload_file(file)
     job_id = uuid4().hex
     await _update_transcription_job(job_id, "processing")
-    background_tasks.add_task(_run_transcription_job, job_id, tmp_path)
+    background_tasks.add_task(_run_transcription_job, job_id, tmp_path, model)
     return TranscriptionJobCreated(status="accepted", job_id=job_id)
 
 
