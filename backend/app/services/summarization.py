@@ -1,48 +1,31 @@
+import asyncio
 import json
-import anthropic
+from openai import OpenAI
 from app.config import settings
-from app.models.schemas import MeetingSummary
-from app.prompts.meeting_summary import SYSTEM_PROMPT
+from app.prompts.meeting_summary import MEETING_SUMMARY_PROMPT, MEETING_SUMMARY_SCHEMA
 
-client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+client = OpenAI(api_key=settings.open_ai_api_key)
 
 
-async def summarize_meeting(transcript: str) -> MeetingSummary:
+async def summarize_meeting(transcript: str) -> dict:
     """
-    Use Claude to extract structured meeting information.
+    Use OpenAI to summarize a meeting transcript.
+    Returns a structured dictionary with meeting summary data.
     """
-    response = await client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=4096,
-        system=SYSTEM_PROMPT,
-        messages=[
-            {
-                "role": "user",
-                "content": f"Please analyze this meeting transcript and extract the requested information:\n\n{transcript}"
+    def _call_openai():
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": MEETING_SUMMARY_PROMPT},
+                {"role": "user", "content": transcript}
+            ],
+            response_format={
+                "type": "json_schema",
+                "json_schema": MEETING_SUMMARY_SCHEMA
             }
-        ]
-    )
+        )
+        return json.loads(response.choices[0].message.content)
     
-    # Parse Claude's JSON response
-    # Claude returns content as a list of TextBlock objects
-    response_text = ""
-    for content_block in response.content:
-        if hasattr(content_block, 'text'):
-            response_text += content_block.text
-    
-    # Extract JSON from response (handle markdown code blocks if present)
-    if "```json" in response_text:
-        json_start = response_text.find("```json") + 7
-        json_end = response_text.find("```", json_start)
-        response_text = response_text[json_start:json_end].strip()
-    elif "```" in response_text:
-        json_start = response_text.find("```") + 3
-        json_end = response_text.find("```", json_start)
-        if json_end == -1:
-            json_end = len(response_text)
-        response_text = response_text[json_start:json_end].strip()
-    
-    result = json.loads(response_text)
-    
-    # Create MeetingSummary, but don't include transcript yet (will be added in main.py)
-    return MeetingSummary(**result)
+    # Run in thread pool to avoid blocking
+    summary = await asyncio.to_thread(_call_openai)
+    return summary

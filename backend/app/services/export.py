@@ -13,29 +13,23 @@ def create_word_document(summary: MeetingSummary) -> str:
     title = doc.add_heading(summary.title, 0)
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     
-    # Metadata
-    if summary.date or summary.duration:
-        meta = []
-        if summary.date:
-            meta.append(f"Date: {summary.date}")
-        if summary.duration:
-            meta.append(f"Duration: {summary.duration}")
-        doc.add_paragraph(" | ".join(meta))
-    
-    # Participants
-    doc.add_heading("Participants", level=1)
-    for p in summary.participants:
-        role_str = f" ({p.role})" if p.role else ""
-        doc.add_paragraph(f"• {p.name}{role_str}")
-    
     # Executive Summary
     doc.add_heading("Executive Summary", level=1)
     doc.add_paragraph(summary.summary)
     
-    # Key Points
-    doc.add_heading("Key Discussion Points", level=1)
-    for point in summary.key_points:
-        doc.add_paragraph(f"• {point}")
+    # Participants (only if present)
+    if summary.participants:
+        doc.add_heading("Participants", level=1)
+        for p in summary.participants:
+            name_str = p.name or "Unknown Speaker"
+            role_str = f" ({p.role})" if p.role else ""
+            doc.add_paragraph(f"• {name_str}{role_str}")
+    
+    # Key Points (only if present)
+    if summary.key_points:
+        doc.add_heading("Key Discussion Points", level=1)
+        for point in summary.key_points:
+            doc.add_paragraph(f"• {point}")
     
     # Decisions
     if summary.decisions:

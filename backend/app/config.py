@@ -2,7 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    anthropic_api_key: str
+    anthropic_api_key: str = ""
+    open_ai_api_key: str = ""
     whisper_model: str = "large-v3"
     whisper_device: str = "cpu"
     whisper_compute_type: str = "int8"
@@ -11,6 +12,7 @@ class Settings(BaseSettings):
     
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

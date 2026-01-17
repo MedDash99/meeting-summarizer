@@ -15,6 +15,7 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export default function FileUpload({ onUploadStart, onProcessing, onComplete, onError }) {
   const [model, setModel] = useState('large-v3');
+  const [withSummary, setWithSummary] = useState(false);
 
   const onDrop = useCallback(async (acceptedFiles) => {
     const file = acceptedFiles[0];
@@ -24,7 +25,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
     
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('summarize', 'false');
+    formData.append('summarize', withSummary ? 'true' : 'false');
     formData.append('model', model);
     
     try {
@@ -59,7 +60,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
     } catch (err) {
       onError(err.response?.data?.detail || err.message || 'Processing failed');
     }
-  }, [onUploadStart, onProcessing, onComplete, onError, model]);
+  }, [onUploadStart, onProcessing, onComplete, onError, model, withSummary]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
@@ -71,17 +72,28 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-center gap-2">
-        <label className="text-sm text-gray-600">Model:</label>
-        <select
-          value={model}
-          onChange={(e) => setModel(e.target.value)}
-          className="border rounded px-3 py-1 text-sm"
-        >
-          {MODELS.map((m) => (
-            <option key={m.value} value={m.value}>{m.label}</option>
-          ))}
-        </select>
+      <div className="flex items-center justify-center gap-4">
+        <div className="flex items-center gap-2">
+          <label className="text-sm text-gray-600">Model:</label>
+          <select
+            value={model}
+            onChange={(e) => setModel(e.target.value)}
+            className="border rounded px-3 py-1 text-sm"
+          >
+            {MODELS.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
+          </select>
+        </div>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={withSummary}
+            onChange={(e) => setWithSummary(e.target.checked)}
+            className="w-4 h-4"
+          />
+          <span className="text-sm text-gray-600">With Summary</span>
+        </label>
       </div>
       <div 
         {...getRootProps()} 

@@ -1,20 +1,39 @@
+import { Loader2 } from 'lucide-react';
+import { cn } from '../lib/utils';
+
 export default function ProcessingStatus({ stage }) {
   const getMessage = () => {
     if (stage === 'uploading') {
       return 'Uploading file...';
     }
-    return 'Transcribing audio (this may take several minutes)...';
+    if (stage === 'loading') {
+      return 'Loading transcript...';
+    }
+    return 'Transcribing audio...';
+  };
+
+  const getSubMessage = () => {
+    if (stage === 'processing') {
+      return 'This may take several minutes';
+    }
+    return null;
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-      <div className="flex justify-center mb-4">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-      <p className="text-lg text-gray-700">{getMessage()}</p>
-      {stage === 'processing' && (
-        <p className="text-sm text-gray-500 mt-2">
-          Transcribing with Whisper large-v3...
+    <div
+      className={cn(
+        'flex flex-col items-center justify-center py-24',
+        'bg-white dark:bg-zinc-900',
+        'rounded-xl border border-zinc-200 dark:border-zinc-800'
+      )}
+    >
+      <Loader2 className="size-10 text-zinc-400 dark:text-zinc-500 animate-spin mb-4" />
+      <p className="text-base font-medium text-zinc-900 dark:text-zinc-100">
+        {getMessage()}
+      </p>
+      {getSubMessage() && (
+        <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-2">
+          {getSubMessage()}
         </p>
       )}
     </div>
