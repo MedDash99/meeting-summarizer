@@ -1,0 +1,91 @@
+{
+    "name": "weekly_team_meeting",
+    "strict": false,
+    "schema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the meeting"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Executive summary of the meeting"
+        },
+        "participants": {
+          "type": ["array", "null"],
+          "description": "List of people who attended the meeting",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": ["string", "null"],
+                "description": "Participant's full name (null if unavailable)"
+              },
+              "role": {
+                "type": ["string", "null"],
+                "description": "Role of the participant in the meeting"
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          },
+          "default": null
+        },
+        "decisions": {
+          "type": ["array", "null"],
+          "description": "Decisions made during the meeting",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": {
+                "type": "string",
+                "description": "Decision statement"
+              },
+              "context": {
+                "type": ["string", "null"],
+                "description": "Context or reasoning for the decision"
+              }
+            },
+            "required": ["description"],
+            "additionalProperties": false
+          },
+          "default": null
+        },
+        "action_items": {
+          "type": ["array", "null"],
+          "description": "List of action items from the meeting",
+          "items": {
+            "type": "object",
+            "properties": {
+              "task": {
+                "type": "string",
+                "description": "Description of the action item"
+              },
+              "assignee": {
+                "type": ["string", "null"],
+                "description": "Person assigned to the action item"
+              },
+              "deadline": {
+                "type": ["string", "null"],
+                "description": "Deadline for the action item"
+              }
+            },
+            "required": ["task"],
+            "additionalProperties": false
+          },
+          "default": null
+        },
+        "key_points": {
+          "type": ["array", "null"],
+          "description": "Key points discussed in the meeting",
+          "items": {
+            "type": "string"
+          },
+          "default": null
+        }
+      },
+      "required": ["title", "summary"],
+      "additionalProperties": false
+    }
+  }
