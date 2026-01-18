@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeft, Download, Users, Lightbulb, CheckCircle, ListTodo, Sparkles, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { API_BASE } from '../config';
 
 export default function ResultsDisplay({ data, onReset, onBackToHistory, isViewing = false, onDataUpdate }) {
   const [activeTab, setActiveTab] = useState(() => (data?.summary ? 'summary' : 'transcript'));
@@ -14,7 +15,7 @@ export default function ResultsDisplay({ data, onReset, onBackToHistory, isViewi
 
     setIsGeneratingSummary(true);
     try {
-      const response = await fetch(`http://141.148.51.40:8000/api/transcripts/${data._id}/summarize`, {
+      const response = await fetch(`${API_BASE}/api/transcripts/${data._id}/summarize`, {
         method: 'POST',
       });
 
@@ -37,7 +38,7 @@ export default function ResultsDisplay({ data, onReset, onBackToHistory, isViewi
 
   const handleExport = async () => {
     try {
-      const response = await fetch('http://141.148.51.40:8000/api/export', {
+      const response = await fetch(`${API_BASE}/api/export`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

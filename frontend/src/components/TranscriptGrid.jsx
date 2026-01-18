@@ -2,8 +2,7 @@ import { useState, useEffect } from 'react';
 import { Loader2, FileX } from 'lucide-react';
 import TranscriptCard from './TranscriptCard';
 import { cn } from '../lib/utils';
-
-const API_BASE = 'http://141.148.51.40:8000';
+import { API_BASE } from '../config';
 
 export default function TranscriptGrid({
   selectedIds,

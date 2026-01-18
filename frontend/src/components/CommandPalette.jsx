@@ -2,8 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import * as Dialog from '@radix-ui/react-dialog';
 import { Search, FileText, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
-
-const API_BASE = 'http://141.148.51.40:8000';
+import { API_BASE } from '../config';
 
 export default function CommandPalette({ open, onOpenChange, onSelectTranscript }) {
   const [query, setQuery] = useState('');

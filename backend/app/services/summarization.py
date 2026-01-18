@@ -14,7 +14,7 @@ async def summarize_meeting(transcript: str) -> dict:
     """
     def _call_openai():
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5-mini",
             messages=[
                 {"role": "system", "content": MEETING_SUMMARY_PROMPT},
                 {"role": "user", "content": transcript}

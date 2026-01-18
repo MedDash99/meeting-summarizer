@@ -26,14 +26,14 @@ The goal was to build a meeting transcription and summarization tool with:
 - Component-based architecture with clear separation of concerns
 
 **AI Integration**
-- OpenAI GPT-4o for summarization (reliable structured output support)
+- OpenAI GPT-5mini for summarization (reliable structured output support)
 - JSON Schema for structured output to ensure consistent data format
 - Flexible schema design to handle missing data gracefully
 
 ### Data Flow Design
 
 ```
-Audio File → Whisper Transcription → GPT-4o Summarization → Structured JSON → UI Display
+Audio File → Whisper Transcription → GPT-5mini Summarization → Structured JSON → UI Display
                                                                           ↓
                                                                     Word Export
 ```
@@ -126,13 +126,14 @@ See `backend/app/prompts/meeting_summary.py` for the full prompt and schema.
 |-------|------------|
 | Requirements analysis & planning | 1 hour |
 | Backend setup (FastAPI, DB) | 2 hours |
-| Transcription service (faster-whisper) | 3 hours |
-| Summarization service (OpenAI) | 2 hours |
-| Frontend UI (React, Tailwind) | 4 hours |
-| Integration & testing | 2 hours |
-| Bug fixes & refinements | 2 hours |
-| Documentation | 1 hour |
-| **Total** | **17 hours** |
+| Transcription service (faster-whisper) | 1 hour |
+| Summarization service (OpenAI) | .5 hours |
+| Frontend UI (React, Tailwind) | .5 hours |
+| Integration & testing | .5 hours |
+| Bug fixes & refinements | .5 hours |
+| Deployment | 2 hour |
+| Documentation | .25 hours |
+| **Total** | **8.25 hours** |
 
 ## 5. Key Learnings
 
@@ -151,3 +152,4 @@ See `backend/app/prompts/meeting_summary.py` for the full prompt and schema.
 - Add meeting templates for different meeting types
 - Implement search across historical transcripts
 - Add collaborative editing of summaries
+- Migrate summarization from Chat Completions API to the newer Responses API (enables saved prompt IDs, better alignment with OpenAI’s roadmap)

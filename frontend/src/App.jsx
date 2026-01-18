@@ -10,8 +10,7 @@ import ProcessingStatus from './components/ProcessingStatus';
 import KeyboardShortcutsHelp from './components/KeyboardShortcutsHelp';
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts';
 import { cn } from './lib/utils';
-
-const API_BASE = 'http://141.148.51.40:8000';
+import { API_BASE } from './config';
 
 function AppContent() {
   const { toggleTheme } = useTheme();

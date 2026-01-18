@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-
-const API_BASE = 'http://141.148.51.40:8000';
+import { API_BASE } from '../config';
 
 export default function TranscriptHistory({ onViewTranscript, onBack }) {
   const [transcripts, setTranscripts] = useState([]);

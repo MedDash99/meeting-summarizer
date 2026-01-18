@@ -1,8 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
-
-const API_BASE_URL = 'http://141.148.51.40:8000';
+import { API_BASE } from '../config';
 const POLL_INTERVAL_MS = 2000;
 
 const MODELS = [
@@ -29,7 +28,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
     formData.append('model', model);
     
     try {
-      const startResponse = await axios.post(`${API_BASE_URL}/api/transcriptions`, formData, {
+      const startResponse = await axios.post(`${API_BASE}/api/transcriptions`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
@@ -41,7 +40,7 @@ export default function FileUpload({ onUploadStart, onProcessing, onComplete, on
       const jobId = startResponse.data.job_id;
 
       while (true) {
-        const statusResponse = await axios.get(`${API_BASE_URL}/api/transcriptions/${jobId}`);
+        const statusResponse = await axios.get(`${API_BASE}/api/transcriptions/${jobId}`);
         const { status, data, error } = statusResponse.data;
 
         if (status === 'processing') {

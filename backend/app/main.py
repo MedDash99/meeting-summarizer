@@ -118,7 +118,13 @@ async def _run_transcription_job(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://141.148.51.40:5173"],  # Vite default
+    allow_origins=[
+        "http://localhost:5173",
+        "http://141.148.51.40:5173",
+        "http://141.148.51.40",
+        "http://transcriber.re-wear.cc",
+        "https://transcriber.re-wear.cc",
+    ],
     allow_methods=["*"],
     allow_headers=["*"],
 )
