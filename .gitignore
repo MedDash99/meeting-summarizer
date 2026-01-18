@@ -43,3 +43,7 @@ Thumbs.db
 *.temp
 *.docx
 *.db
+*.cursor
+*.cursorrules
+*.claude
+
